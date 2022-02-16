@@ -1,0 +1,23 @@
+test> show dbs
+test> use tweet_database1
+tweet_database1>db.tweets1.aggregate([
+  {$project: {
+    occurences: {
+      $regexFindAll: {
+        input: '$text',
+        regex: /\bden\b|\bhan\b|\bhon\b|\bdet\b|\bdenna\b|\bdenne\b|\bhen\b/, // match pronouns
+      }
+    }
+  }},
+  {$unwind: '$occurences'},
+  {$group: {
+    _id: '$occurences.match', // group by each word
+    totalOccurences: {
+      $sum: 1 // add up total occurences
+    }
+  }},
+  {$sort: {
+    totalOccurences: -1
+  }}
+]);
+tweet_database1> db.tweets1.count()
